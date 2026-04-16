@@ -2,7 +2,7 @@
 
 A powerful CLI tool for interactively migrating Markdown files and their referenced assets (images, documents, videos, etc.) to a new location.
 
-[中文文档](#中文文档)
+> 📖 [中文文档 (Chinese README)](https://github.com/isaaxite/transnail/blob/main/packages/migrate-cli/docs/README.zh-CN.md)
 
 ## Features
 
@@ -157,4 +157,4 @@ After migration, the tool reports:
 
 ## License
 
-MIT
+[GPL-3.0-or-later](https://github.com/isaaxite/transnail/blob/main/LICENSE) © [isaaxite](https://github.com/isaaxite)

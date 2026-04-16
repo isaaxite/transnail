@@ -2,6 +2,8 @@
 
 一个强大的交互式 CLI 工具，用于迁移 Markdown 文件及其引用的资源文件（图片、文档、视频等）。
 
+> 📖 [English README](https://github.com/isaaxite/transnail/blob/main/packages/migrate-cli/README.md)
+
 ## 功能特点
 
 - 🚀 **交互式迁移** - 通过直观的界面选择要迁移的文章
@@ -155,4 +157,4 @@ npx @transnail/migrate-cli \
 
 ## 许可证
 
-MIT
+[GPL-3.0-or-later](https://github.com/isaaxite/transnail/blob/main/LICENSE) © [isaaxite](https://github.com/isaaxite)

@@ -65,7 +65,7 @@
     "name": "isaaxite",
     "url": "https://github.com/isaaxite"
   },
-  "license": "ISC",
+  "license": "GPL-3.0-or-later",
   "homepage": "https://github.com/isaaxite/transnail#readme",
   "sideEffects": false,
   "engines": {
