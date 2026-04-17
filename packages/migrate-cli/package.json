@@ -1,6 +1,6 @@
 {
   "name": "@transnail/migrate-cli",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Interactively migrate Markdown files and referenced assets between directories",
   "main": "./dist/index.cjs",
   "bin": {
