@@ -1,6 +1,6 @@
 {
   "name": "@transnail/migrate-cli",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Interactively migrate Markdown files and referenced assets between directories",
   "main": "./dist/index.cjs",
   "bin": {
@@ -20,6 +20,7 @@
     "build:prod": "npm run clean && NODE_ENV=production rollup -c",
     "dev": "nodemon --watch index.ts --watch src -e ts --exec \"npm run build:dev\"",
     "check-publish": "npm pack --dry-run",
+    "prepublishOnly": "npm run build:prod",
     "publish:beta": "npm publish --tag beta --access public",
     "publish:latest": "npm publish --tag latest --access public"
   },

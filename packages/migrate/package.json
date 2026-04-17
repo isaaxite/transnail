@@ -1,5 +1,6 @@
 {
   "name": "@transnail/migrate",
+  "private": true,
   "version": "1.0.0",
   "description": "",
   "main": "./dist/index.cjs",
