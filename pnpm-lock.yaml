@@ -8,31 +8,12 @@ importers:
 
   .:
     devDependencies:
-      license:
-        specifier: ^1.0.3
-        version: 1.0.3
-      tsx:
-        specifier: ^4.21.0
-        version: 4.21.0
-
-  packages/dev:
-    dependencies:
-      '@transnail/migrate-cli':
-        specifier: workspace:*
-        version: link:../migrate-cli
-
-  packages/migrate:
-    dependencies:
-      link-harvester:
-        specifier: ^2.0.0
-        version: 2.0.0
-      path-treeify:
-        specifier: ^1.4.1
-        version: 1.4.1
-    devDependencies:
-      '@isaaxite/nodelib-scaffold':
-        specifier: ^1.0.0
-        version: 1.0.0
+      '@rollup/plugin-commonjs':
+        specifier: ^29.0.2
+        version: 29.0.2(rollup@4.60.1)
+      '@rollup/plugin-node-resolve':
+        specifier: ^16.0.3
+        version: 16.0.3(rollup@4.60.1)
       '@rollup/plugin-terser':
         specifier: ^1.0.0
         version: 1.0.0(rollup@4.60.1)
@@ -48,6 +29,9 @@ importers:
       c8:
         specifier: ^11.0.0
         version: 11.0.0
+      license:
+        specifier: ^1.0.3
+        version: 1.0.3
       nodemon:
         specifier: ^3.1.14
         version: 3.1.14
@@ -63,9 +47,24 @@ importers:
       tslib:
         specifier: ^2.8.1
         version: 2.8.1
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
       typescript:
         specifier: ^6.0.2
         version: 6.0.2
+
+  packages/dev:
+    dependencies:
+      '@transnail/migrate-cli':
+        specifier: workspace:*
+        version: link:../migrate-cli
+
+  packages/migrate:
+    dependencies:
+      link-harvester:
+        specifier: ^2.0.0
+        version: 2.0.0
 
   packages/migrate-cli:
     dependencies:
@@ -85,60 +84,18 @@ importers:
         specifier: ^1.4.0
         version: 1.4.0
     devDependencies:
-      '@rollup/plugin-commonjs':
-        specifier: ^29.0.2
-        version: 29.0.2(rollup@4.60.1)
-      '@rollup/plugin-node-resolve':
-        specifier: ^16.0.3
-        version: 16.0.3(rollup@4.60.1)
-      '@rollup/plugin-terser':
-        specifier: ^1.0.0
-        version: 1.0.0(rollup@4.60.1)
-      '@rollup/plugin-typescript':
-        specifier: ^12.3.0
-        version: 12.3.0(rollup@4.60.1)(tslib@2.8.1)(typescript@6.0.2)
       '@transnail/migrate':
         specifier: workspace:*
         version: link:../migrate
       '@types/minimist':
         specifier: ^1.2.5
         version: 1.2.5
-      '@types/node':
-        specifier: ^25.6.0
-        version: 25.6.0
       '@types/prompts':
         specifier: ^2.4.9
         version: 2.4.9
       '@types/signale':
         specifier: ^1.4.7
         version: 1.4.7
-      ava:
-        specifier: ^7.0.0
-        version: 7.0.0(rollup@4.60.1)
-      c8:
-        specifier: ^11.0.0
-        version: 11.0.0
-      nodemon:
-        specifier: ^3.1.14
-        version: 3.1.14
-      rimraf:
-        specifier: ^6.1.3
-        version: 6.1.3
-      rollup:
-        specifier: ^4.60.1
-        version: 4.60.1
-      tap-json:
-        specifier: ^1.0.0
-        version: 1.0.0
-      tslib:
-        specifier: ^2.8.1
-        version: 2.8.1
-      tsx:
-        specifier: ^4.21.0
-        version: 4.21.0
-      typescript:
-        specifier: ^6.0.2
-        version: 6.0.2
 
 packages:
 
@@ -305,10 +262,6 @@ packages:
   '@isaacs/fs-minipass@4.0.1':
     resolution: {integrity: sha512-wgm9Ehl2jpeqP3zw/7mo3kRHFp5MEDhqAdwy1fTGkHAwnkGOVsgpvQhL8B5n1qlb01jV3n/bI0ZfZp5lWA1k4w==}
     engines: {node: '>=18.0.0'}
-
-  '@isaaxite/nodelib-scaffold@1.0.0':
-    resolution: {integrity: sha512-AkVl+I4GxPuLTuMZexsH9OKH5m2qSL/2dieKmtLLNOWfS9S1yFhjuP+sMH6bj5yfEvzVR8IzA6nbZFu20neHSg==, tarball: https://npm.pkg.github.com/download/@isaaxite/nodelib-scaffold/1.0.0/7602c4051f0462c09d5845c48eb1821745a71f03}
-    hasBin: true
 
   '@istanbuljs/schema@0.1.6':
     resolution: {integrity: sha512-+Sg6GCR/wy1oSmQDFq4LQDAhm3ETKnorxN+y5nbLULOR3P0c14f2Wurzj3/xqPXtasLFfHd5iRFQ7AJt4KH2cw==}
@@ -930,10 +883,6 @@ packages:
     resolution: {integrity: sha512-gIXjKqtFuWEgzFRJA9WCQeSJLZDjgJUOMCMzxtvFq/37KojM1BFGufqsCy0r4qSQmYLsZYMeyRqzIWOMup03sw==}
     engines: {node: '>=14'}
 
-  fs-extra@11.3.4:
-    resolution: {integrity: sha512-CTXd6rk/M3/ULNQj8FBqBWHYBVYybQ3VPBw0xGKFe3tuH7ytT6ACnvzpIQ3UZtB8yvUKC2cXn1a+x+5EVQLovA==}
-    engines: {node: '>=14.14'}
-
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
     engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
@@ -1116,12 +1065,6 @@ packages:
 
   json-stringify-safe@5.0.1:
     resolution: {integrity: sha512-ZClg6AaYvamvYEE82d3Iyd3vSSIjQ+odgjaTzRuO3s7toCdFKczob2i0zCh7JE8kWn17yvAWhUVxvqGwUalsRA==}
-
-  jsonc-parser@3.3.1:
-    resolution: {integrity: sha512-HUgH65KyejrUFPvHFPbqOY0rsFip3Bo5wb4ngvdi1EpCYWUQDC5V+Y7mZws+DLkr4M//zQJoanu1SP+87Dv1oQ==}
-
-  jsonfile@6.2.0:
-    resolution: {integrity: sha512-FGuPw30AdOIUTRMC2OMRtQV+jkVj2cfPqSeWXv1NEAJ1qZ5zb1X6z1mFhbfOB/iy3ssJCD+3KuZ8r8C3uVFlAg==}
 
   kleur@3.0.3:
     resolution: {integrity: sha512-eTIzlVOSUR+JxdDFepEYcBMtZ9Qqdef+rnzWdRZuMbOywu5tO2w2N7rqjoANZ5k9vywhL6Br1VRjUIgTQx4E8w==}
@@ -1624,10 +1567,6 @@ packages:
     resolution: {integrity: sha512-uNaeirEPvpZWSgzwsPGtU2zVSTrn/8L5q/IexZmH0eH6SA73CmAA5U4GwORTxQAZs95TAXLNqeLoPPNO5gZfWg==}
     engines: {node: '>=8'}
 
-  universalify@2.0.1:
-    resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
-    engines: {node: '>= 10.0.0'}
-
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
 
@@ -1811,13 +1750,6 @@ snapshots:
   '@isaacs/fs-minipass@4.0.1':
     dependencies:
       minipass: 7.1.3
-
-  '@isaaxite/nodelib-scaffold@1.0.0':
-    dependencies:
-      fs-extra: 11.3.4
-      jsonc-parser: 3.3.1
-      minimist: 1.2.8
-      prompts: 2.4.2
 
   '@istanbuljs/schema@0.1.6': {}
 
@@ -2409,12 +2341,6 @@ snapshots:
       cross-spawn: 7.0.6
       signal-exit: 4.1.0
 
-  fs-extra@11.3.4:
-    dependencies:
-      graceful-fs: 4.2.11
-      jsonfile: 6.2.0
-      universalify: 2.0.1
-
   fsevents@2.3.3:
     optional: true
 
@@ -2557,14 +2483,6 @@ snapshots:
   json-parse-better-errors@1.0.2: {}
 
   json-stringify-safe@5.0.1: {}
-
-  jsonc-parser@3.3.1: {}
-
-  jsonfile@6.2.0:
-    dependencies:
-      universalify: 2.0.1
-    optionalDependencies:
-      graceful-fs: 4.2.11
 
   kleur@3.0.3: {}
 
@@ -3069,8 +2987,6 @@ snapshots:
   unique-string@2.0.0:
     dependencies:
       crypto-random-string: 2.0.0
-
-  universalify@2.0.1: {}
 
   util-deprecate@1.0.2: {}
 
