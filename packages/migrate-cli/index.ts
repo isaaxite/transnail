@@ -23,9 +23,9 @@ const args = minimist(process.argv.slice(2), {
 const { inputDir, outputDir, assetDirName } = args;
 const baseAbsPath = resolve(args.base);
 
-let postDisplayType = PostDisplayType.Title;
-if ([PostDisplayType.FileName, PostDisplayType.Title].includes(args.postDisplayType.trim())) {
-  postDisplayType = args.postDisplayType.trim();
+let postDisplayType = args.postDisplayType || '';
+if (![PostDisplayType.FileName, PostDisplayType.Title].includes(postDisplayType)) {
+  postDisplayType = PostDisplayType.Title;
 }
 
 main(assetDirName, baseAbsPath, inputDir, outputDir, postDisplayType);
