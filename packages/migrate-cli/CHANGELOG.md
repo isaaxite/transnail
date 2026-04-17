@@ -1,5 +1,11 @@
 # @transnail/migrate-cli
 
+## 1.1.1
+
+### Patch Changes
+
+- handle missing explicit --post-display-mode flag
+
 ## 1.1.0
 
 ### Minor Changes
