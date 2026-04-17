@@ -35,6 +35,7 @@ npx @transnail/migrate-cli [选项]
 | `-a` | `--asset-dirname` | 资源目录名称（如 `assets`、`images`） |
 | `-i` | `--input-dir` | 相对于基础路径的输入目录 |
 | `-o` | `--output-dir` | 相对于基础路径的输出目录 |
+| `-p` | `--post-display-mode` | 文章列表显示模式：`title`（默认，需文章包含 front-matter）或 `filename` |
 
 ### 使用示例
 
@@ -44,21 +45,24 @@ npx @transnail/migrate-cli \
   --base="./my-blog" \
   --asset-dirname="assets" \
   --input-dir="./posts" \
-  --output-dir="./migrated"
+  --output-dir="./migrated" \
+  --post-display-mode="title"
 
 # 使用简写参数
 npx @transnail/migrate-cli \
   -b "./my-blog" \
   -a "assets" \
   -i "./posts" \
-  -o "./migrated"
+  -o "./migrated" \
+  -p "title"
 
 # 使用绝对路径
 npx @transnail/migrate-cli \
   --base="/Users/username/blog" \
   --asset-dirname="images" \
   --input-dir="content" \
-  --output-dir="output"
+  --output-dir="output" \
+  --post-display-mode="title"
 ```
 
 ## 工作原理

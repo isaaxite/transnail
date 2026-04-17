@@ -14,3 +14,8 @@ export enum TransferModeType {
   Replace = 'replace',
   Skip = 'skip',
 }
+
+export enum PostDisplayType {
+  Title = 'title',
+  FileName = 'filename',
+}

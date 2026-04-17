@@ -4,13 +4,15 @@ import Prompt from "./prompt";
 import fg from 'fast-glob';
 import { readFrontMatterTitle } from "./utils";
 import Hint from "./hint";
-import { join } from "node:path";
+import { basename, join } from "node:path";
+import { PostDisplayType } from "./types";
 
 export default async function main(
   assetDirName: string,
   baseAbsPath: string,
   inputDir: string,
   outputDir: string,
+  postDisplayType: PostDisplayType,
 ) {
   const inputDirAbs = join(baseAbsPath, inputDir);
   const outputDirAbs = join(baseAbsPath, outputDir);
@@ -21,10 +23,16 @@ export default async function main(
       cwd: inputDirAbs,
     });
 
+    const getTitle = postDisplayType === PostDisplayType.FileName
+      ? (fullPath: string) => basename(fullPath)
+      : (fullPath: string) => {
+        const { title } = readFrontMatterTitle(fullPath);
+        return title;
+      };
     for (const segement of filePaths) {
       const fullPath = join(inputDirAbs, segement);
-      const { error, title } = readFrontMatterTitle(fullPath);
-      if (!error && title) {
+      const title = getTitle(fullPath);
+      if (title) {
         result.push({ title, postPath: fullPath })
       }
     }
