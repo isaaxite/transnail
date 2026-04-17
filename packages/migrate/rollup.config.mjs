@@ -3,6 +3,8 @@ import terser from '@rollup/plugin-terser';
 
 const isProduction = process.env.NODE_ENV === 'production';
 
+console.info(process.env.NODE_ENV)
+
 export default {
   input: 'index.ts',
   output: [
