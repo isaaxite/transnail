@@ -35,6 +35,7 @@ npx @transnail/migrate-cli [options]
 | `-a` | `--asset-dirname` | Assets directory name (e.g., `assets`, `images`) |
 | `-i` | `--input-dir` | Input directory relative to base path |
 | `-o` | `--output-dir` | Output directory relative to base path |
+| `-p` | `--post-display-mode` | Display mode for post selection: `title` (default, requires front-matter) or `filename` |
 
 ### Examples
 
@@ -44,21 +45,24 @@ npx @transnail/migrate-cli \
   --base="./my-blog" \
   --asset-dirname="assets" \
   --input-dir="./posts" \
-  --output-dir="./migrated"
+  --output-dir="./migrated" \
+  --post-display-mode="title"
 
 # Using short parameters
 npx @transnail/migrate-cli \
   -b "./my-blog" \
   -a "assets" \
   -i "./posts" \
-  -o "./migrated"
+  -o "./migrated" \
+  -p "title"
 
 # With absolute paths
 npx @transnail/migrate-cli \
   --base="/Users/username/blog" \
   --asset-dirname="images" \
   --input-dir="content" \
-  --output-dir="output"
+  --output-dir="output" \
+  --post-display-mode="title"
 ```
 
 ## How It Works
