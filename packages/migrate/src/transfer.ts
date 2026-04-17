@@ -11,14 +11,23 @@ export function moveFile(src: string, dest: string) {
   unlinkSync(src);
 }
 
+export type TransferFilesRet = {
+  moved: string[];
+  copied: string[];
+  failed: {
+    moved: string[];
+    copied: string[];
+  };
+};
+
 export function transferFiles(
   outputDir: string,
   mdFilePath: string,
   resources: {
     move: Array<string>;
-    copy: Array<any>;
+    copy: Array<string>;
   },
-) {
+): TransferFilesRet {
   if (!existsSync(outputDir)) {
     console.error(`${outputDir} is not exist!`)
     process.exit(1);
@@ -28,12 +37,9 @@ export function transferFiles(
   const resolvedMdFile    = resolve(mdFilePath);
   const mdDir             = dirname(resolvedMdFile);
 
-  const moved: string[]  = [];
-  const copied: string[]  = [];
-  const failed: {
-    moved: string[];
-    copied: string[];
-  } = {
+  const moved: TransferFilesRet['moved']  = [];
+  const copied: TransferFilesRet['copied']  = [];
+  const failed: TransferFilesRet['failed'] = {
     moved: [],
     copied: [],
   };

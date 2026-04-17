@@ -1,5 +1,11 @@
 # @transnail/migrate-cli
 
+## 1.2.0
+
+### Minor Changes
+
+- add hint for the result
+
 ## 1.1.1
 
 ### Patch Changes
