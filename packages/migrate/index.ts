@@ -1,5 +1,5 @@
 import { basename, dirname, join, relative, sep } from "node:path";
-import { normalizeDestPaths, transferFiles } from "./src/transfer";
+import { normalizeDestPaths, transferFiles, TransferFilesRet } from "./src/transfer";
 import { DetectType, LinkHarvester, LinkTarget } from "link-harvester";
 import { checkFileExist } from "./src/utils";
 
@@ -23,6 +23,9 @@ interface Hint {
     main: { label: string, text: string };
     subs: string[];
   }) => void;
+  note: (text: string, label: string) => void;
+  fatal: (text: string, label: string) => void;
+  success: (text: string, label: string) => void;
 }
 
 async function core(baseAbsPath: string, inputDir: string, opt: {
@@ -40,7 +43,7 @@ async function core(baseAbsPath: string, inputDir: string, opt: {
     return filePath.startsWith(dir);
   };
 
-  const result: Record<string, any> = {};
+  const result: Record<string, TransferFilesRet> = {};
 
   for (const postPath of postPaths) {
     let harvester = new LinkHarvester({
@@ -158,7 +161,46 @@ async function core(baseAbsPath: string, inputDir: string, opt: {
     result[postPath] = transferFiles(outputDirpath, postPath, resources);
   }
 
+  const hasFailed = (failed: TransferFilesRet['failed']) => failed.moved.length || failed.copied.length;
+  try {
+    for (const [filePath, ret] of Object.entries(result)) {
+      const { failed, moved, copied } = ret;
+      const fileName = basename(filePath);
+      const successLabel = `assets - moved(${moved.length}) copied(${copied.length})`;
+      const failedLabel = `failed(moved: ${failed.moved.length}, copied: ${failed.copied.length})`;
+
+      hasFailed(failed)
+        ? hint.note(fileName, `${successLabel} ${failedLabel}`)
+        : hint.success(fileName, successLabel);
+
+      failed.moved.forEach((asset) => hint.fatal(asset, 'moved'));
+      failed.copied.forEach((asset) => hint.fatal(asset, 'copied'));
+    }
+  } catch (error) {
+    throw error;
+  }
+
   return result;
+}
+
+class HintAdapter implements Hint {
+  constructor(private hint?: Partial<Hint>){}
+
+  warnList(...args: Parameters<Hint['warnList']>) {
+    return this.hint?.warnList ? this.hint.warnList(...args) : undefined;
+  }
+
+  note(...args: Parameters<Hint['note']>) {
+    return this.hint?.note ? this.hint.note(...args) : undefined;
+  }
+
+  fatal(...args: Parameters<Hint['fatal']>) {
+    return this.hint?.fatal ? this.hint.fatal(...args) : undefined;
+  }
+
+  success(...args: Parameters<Hint['success']>) {
+    return this.hint?.success ? this.hint.success(...args) : undefined;
+  }
 }
 
 class PromptsAdapter implements Prompts {
@@ -183,18 +225,14 @@ class PromptsAdapter implements Prompts {
   }
 }
 
-const getDefHint: () => Hint = () => ({
-  warnList: () => undefined
-});
-
 export default async function migrate(baseAbsPath: string, inputDir: string, opt: {
   assetDirName: string;
-  prompt: PartialBy<Prompts, "confirm" | "selectTransferMode">;
+  prompt: PartialBy<Prompts, 'confirm' | 'selectTransferMode'>;
   hint?: Hint;
 }) {
   return core(baseAbsPath, inputDir, {
     assetDirName: opt.assetDirName || '',
-    hint: opt.hint || getDefHint(),
+    hint: new HintAdapter(opt.hint),
     prompt: new PromptsAdapter(opt.prompt),
   });
 }
