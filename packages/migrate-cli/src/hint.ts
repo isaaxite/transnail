@@ -33,7 +33,7 @@ export default class Hint {
     signale.error(text);
   }
 
-  success(text: string, label: string) {
+  success(text: string, label?: string) {
     if (label) {
       const signale = new Signale(this.genOpt('success', label));
       return signale.success(text);

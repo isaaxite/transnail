@@ -5,7 +5,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate:drafts": "migrate-cli -b ../../../ -a assets -i blog/source/_drafts -o blog/source/_posts",
+    "migrate:posts": "migrate-cli -b ../../../ -a assets -o blog/source/_drafts -i blog/source/_posts"
   },
   "keywords": [],
   "author": "",
