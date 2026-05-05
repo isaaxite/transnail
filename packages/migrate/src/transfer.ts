@@ -27,6 +27,7 @@ export function transferFiles(
     move: Array<string>;
     copy: Array<string>;
   },
+  opt: { isMigrateMdDile: boolean }
 ): TransferFilesRet {
   if (!existsSync(outputDir)) {
     console.error(`${outputDir} is not exist!`)
@@ -44,8 +45,10 @@ export function transferFiles(
     copied: [],
   };
 
-  const mdDestPath = join(resolvedOutputDir, basename(resolvedMdFile));
-  moveFile(resolvedMdFile, mdDestPath);
+  if (opt.isMigrateMdDile) {
+    const mdDestPath = join(resolvedOutputDir, basename(resolvedMdFile));
+    moveFile(resolvedMdFile, mdDestPath);
+  }
 
   for (const url of (resources.move || [])) {
     const srcAbs  = resolve(mdDir, url);
