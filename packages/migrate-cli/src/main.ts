@@ -1,4 +1,4 @@
-import migrate from "@transnail/migrate";
+import { migratePrompt } from "@transnail/migrate";
 import { PathTreeify } from "path-treeify";
 import Prompt from "./prompt";
 import fg from 'fast-glob';
@@ -49,8 +49,7 @@ export default async function main(
     return ptf.build();
   };
 
-  await migrate(baseAbsPath, inputDir, {
-    assetDirName,
+  await migratePrompt(baseAbsPath, inputDir, {
     prompt: new Prompt({
       getPostPaths,
       getDirTree,

@@ -1,167 +1,27 @@
-import { basename, dirname, join, relative, sep } from "node:path";
-import { copyFile, moveFile, normalizeDestPaths, transferFiles, TransferFilesRet } from "./src/transfer";
+import { basename, dirname, join, relative } from "node:path";
 import { DetectType, ExtractedLink, LinkHarvester, LinkTarget } from "link-harvester";
-import { checkFileExist } from "./src/utils";
+import { checkFileExist, copyFile, HintAdapter, isFileInDirectory, printResult, PromptsAdapter } from "./src/utils";
 import { unlinkSync } from "node:fs";
+import { Prompts, Hint, PartialBy, AssetsPayload, MigraterCtorParam, MigraterBase, MigratePromptRet } from "./src/types";
+import { DestAssetStruct, TransferModeType } from "./src/constants";
 
-type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-
-enum TransferModeType {
-  Copy = 'copy',
-  Replace = 'replace',
-  Skip = 'skip',
-}
-
-interface Prompts {
-  selectPosts: () => Promise<string[]>;
-  selectOutputDirPath: () => Promise<string>;
-  confirm: (text: string) => Promise<boolean>;
-  selectTransferMode: (text: string) => Promise<TransferModeType>;
-}
-
-interface Hint {
-  warnList: (props: {
-    main: { label: string, text: string };
-    subs: string[];
-  }) => void;
-  note: (text: string, label: string) => void;
-  fatal: (text: string, label: string) => void;
-  success: (text: string, label?: string) => void;
-}
-
-// 类型工具定义
-type MethodReturnType<
-  T extends abstract new (...args: any) => any,
-  K extends string
-> = K extends keyof InstanceType<T>
-  ? ReturnType<InstanceType<T>[K]>
-  : never;
-
-type MigraterMethodRetype<Method extends string> = MethodReturnType<typeof Migrater, Method>
-
-type CoreResult = Record<string, {
-  movePost: {
-    copyErr: MigraterMethodRetype<"copyPost">;
-    unlinkErr: MigraterMethodRetype<"unlinkPost">;
-  };
-  moveAssets: {
-    [key: string]: {
-      copy: MigraterMethodRetype<"copyAssets">[string];
-      unlink: MigraterMethodRetype<"unlinkAssets">[string]
-    }
-  },
-  copyAssets: MigraterMethodRetype<"copyAssets">;
-}>;
-
-export function printResult(result: CoreResult, hint: Hint) {
-  try {
-    for (const [filePath, ret] of Object.entries(result)) {
-      const { movePost, moveAssets, copyAssets } = ret;
-      const fileName = basename(filePath);
-
-      const moveFaileds = [];
-      for (const it of Object.values(moveAssets)) {
-        let errMsg = [`move ${basename(it.copy.src)}:`];
-        if (it.copy.error) {
-          errMsg.push(`copy failed(${it.copy.error.message})`);
-        }
-
-        if (it.unlink.error) {
-          errMsg.push(`unlink failed(${it.unlink.error.message})`);
-        }
-
-        if (errMsg.length > 1) {
-          moveFaileds.push(errMsg.join(' '));
-        }
-      }
-
-      const copyFaileds = [];
-      for (const it of Object.values(copyAssets)) {
-        if (it.error) {
-          copyFaileds.push(`copy ${basename(it.src)}: copy failed(${it.error.message})`);
-        }
-      }
-
-      let labelItems = [];
-      if (movePost.copyErr) {
-        labelItems.push(`copy fail(${movePost.copyErr.message}), `);
-      }
-
-      if (movePost.unlinkErr) {
-        if (!labelItems.length) {
-          labelItems.push(`copy success, `);
-        }
-        labelItems.push(`unlink fail(${movePost.unlinkErr.message})`);
-      }
-
-      if (labelItems.length === 1) {
-        labelItems.push('unlink skip');
-      }
-
-      const isMovePostErr = movePost.copyErr || movePost.unlinkErr;
-      const isCopyAssetsErr = copyFaileds.length;
-      const isMoveAssetsErr = moveFaileds.length;
-      const moveAssetsLen = Object.keys(moveAssets).length;
-      const copyAssetsLen = Object.keys(copyAssets).length;
-      const assetsSum = moveAssetsLen + copyAssetsLen;
-      
-      if (!isMovePostErr && !isCopyAssetsErr && !isMoveAssetsErr) {
-        return hint.success(
-          `Post: move success; Assets(${assetsSum}): move(success: ${moveAssetsLen} fail: 0), copy(success: ${copyAssetsLen} fail: 0)`,
-          fileName,
-        );
-      }
-
-      const title = [
-        `Post: ${!isMovePostErr ? 'move success' : `move fail(copy: ${movePost.copyErr ? 'fail' : 'success'}, unlink: ${movePost.unlinkErr ? 'fail' : 'success'})`};`,
-        `Assets(${assetsSum}): move(success: ${moveAssetsLen - moveFaileds.length} fail: ${moveFaileds.length})`,
-        `copy(success: ${copyAssetsLen - copyFaileds.length} fail: ${copyFaileds.length}`,
-      ].join(' ');
-
-      hint.warnList({
-        main: { label: fileName, text: title },
-        subs: [
-          labelItems.join(' '),
-          ...moveFaileds,
-          ...copyFaileds
-        ].filter(Boolean),
-      });
-    }
-  } catch (error) {
-    throw error;
-  }
-}
-
-async function core(
+export async function migratePrompt(
   // absolute path
   baseAbsPath: string,
   // relative to baseAbsPath
   inputDir: string,
   opt: {
-    isMigrateMdDile: boolean;
-    assetDirName: string;
-    prompt: Prompts;
-    hint: Hint;
+    prompt: PartialBy<Prompts, 'confirm' | 'selectTransferMode'>;
+    hint?: Hint;
   }
 ) {
-  const { prompt, hint, assetDirName, isMigrateMdDile } = opt;
+  const hint = new HintAdapter(opt.hint);
+  const prompt = new PromptsAdapter(opt.prompt);
   const inputDirAbs = join(baseAbsPath, inputDir);
   const postFullPaths = await prompt.selectPosts();
   const outputDirpath = await prompt.selectOutputDirPath();
 
-  const result: Record<string, {
-    movePost: {
-      copyErr: MigraterMethodRetype<"copyPost">;
-      unlinkErr: MigraterMethodRetype<"unlinkPost">;
-    };
-    moveAssets: {
-      [key: string]: {
-        copy: MigraterMethodRetype<"copyAssets">[string];
-        unlink: MigraterMethodRetype<"unlinkAssets">[string]
-      }
-    },
-    copyAssets: MigraterMethodRetype<"copyAssets">;
-  }> = {};
+  const result: MigratePromptRet = {};
 
   for (const postFullPath of postFullPaths) {
     const migrater = new Migrater({
@@ -253,100 +113,7 @@ async function core(
   return result;
 }
 
-class HintAdapter implements Hint {
-  constructor(private hint?: Partial<Hint>){}
-
-  warnList(...args: Parameters<Hint['warnList']>) {
-    return this.hint?.warnList ? this.hint.warnList(...args) : undefined;
-  }
-
-  note(...args: Parameters<Hint['note']>) {
-    return this.hint?.note ? this.hint.note(...args) : undefined;
-  }
-
-  fatal(...args: Parameters<Hint['fatal']>) {
-    return this.hint?.fatal ? this.hint.fatal(...args) : undefined;
-  }
-
-  success(...args: Parameters<Hint['success']>) {
-    return this.hint?.success ? this.hint.success(...args) : undefined;
-  }
-}
-
-class PromptsAdapter implements Prompts {
-  constructor(private prompts: PartialBy<Prompts, "confirm" | "selectTransferMode">){}
-
-  async selectPosts() {
-    return this.prompts.selectPosts();
-  }
-
-  async selectOutputDirPath() {
-    return this.prompts.selectOutputDirPath();
-  }
-
-  async selectTransferMode(text: string) {
-    return this.prompts.selectTransferMode
-      ? this.prompts.selectTransferMode(text)
-      : TransferModeType.Copy;
-  }
-
-  async confirm(text: string) {
-    return this.prompts.confirm ? this.prompts.confirm(text) : true;
-  }
-}
-
-export default async function migrate(baseAbsPath: string, inputDir: string, opt: {
-  assetDirName: string;
-  isMigrateMdDile?: boolean;
-  prompt: PartialBy<Prompts, 'confirm' | 'selectTransferMode'>;
-  hint?: Hint;
-}) {
-  return core(baseAbsPath, inputDir, {
-    isMigrateMdDile: typeof opt.isMigrateMdDile === 'boolean' ? opt.isMigrateMdDile : true,
-    assetDirName: opt.assetDirName || '',
-    hint: new HintAdapter(opt.hint),
-    prompt: new PromptsAdapter(opt.prompt),
-  });
-}
-
-const isFileInDirectory = (base: string, filePath: string) => {
-  const dir = base.endsWith(sep) ? base : base + sep;
-  return filePath.startsWith(dir);
-};
-
-export enum TransferScope {
-  AssetsOnly = 'assets_only',
-  FullContent = 'full_content',
-}
-
-export enum DestAssetStruct {
-  PreserveOriginal = 'preserve_original',
-  Flatten = 'flatten',
-}
-
-interface MigraterCtorParam {
-  base: string;
-  input: {
-    assetScope: string,
-    filePath: string,
-  };
-  output: string;
-  destAssetStruct: DestAssetStruct;
-}
-
-interface AssetsPayloadItem {
-  raw: ExtractedLink;
-  src: string;
-  dest: string;
-}
-
-interface AssetsPayload {
-  move: AssetsPayloadItem[];
-  copy: AssetsPayloadItem[];
-  skip: AssetsPayloadItem[];
-}
-
-export class Migrater {
+export class Migrater implements MigraterBase {
   private base: string;
   private linksDataCache: { accessible: ExtractedLink[], invalid: ExtractedLink[] } | null = null;
   private destAssetStruct: DestAssetStruct;
@@ -388,6 +155,14 @@ export class Migrater {
     }
   }
 
+  private copyFile(src: string, dest: string) {
+    try {
+      copyFile(src, dest); 
+    } catch (error) {
+      return error as Error;
+    }
+  }
+
   get invalid() {
     return this.linksDataCache?.invalid || [];
   }
@@ -409,14 +184,6 @@ export class Migrater {
     }
 
     return this.linksDataCache;
-  }
-
-  private copyFile(src: string, dest: string) {
-    try {
-      copyFile(src, dest); 
-    } catch (error) {
-      return error as Error;
-    }
   }
 
   async calcAssetsPayload() {
